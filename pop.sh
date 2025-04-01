@@ -3,10 +3,6 @@
 # Script to automate Hemi PoP Miner setup with systemd integration
 # Date: April 01, 2025
 # Target: Linux (amd64 architecture)
-#
-# === Credits ===
-# Author: MEFURY
-# Twitter: https://x.com/meefury
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -17,16 +13,6 @@ NC='\033[0m' # No Color
 WORK_DIR="$HOME/hemi_pop_miner"
 MINER_BINARY="popmd"
 SERVICE_NAME="hemi-pop-miner.service"
-
-# Function to display credits
-display_credits() {
-    echo -e "${GREEN}=== Hemi PoP Miner Setup Script with Systemd ===${NC}"
-    echo "Date: April 01, 2025"
-    echo -e "${GREEN}=== Credits ===${NC}"
-    echo "Author: MEFURY"
-    echo "Twitter: https://x.com/meefury"
-    echo ""
-}
 
 # Function to check and stop existing miner (systemd or standalone)
 check_and_stop_miner() {
@@ -95,7 +81,7 @@ download_and_extract() {
     echo -e "${GREEN}Download and extraction completed.${NC}"
 }
 
-# Function to prompt for user input with improved validation
+# Function to prompt for user input
 get_user_input() {
     echo "Please provide the following details:"
     read -p "Enter your Bitcoin private key: " BTC_PRIVKEY
@@ -104,16 +90,11 @@ get_user_input() {
         exit 1
     fi
 
-    while true; do
-        read -p "Enter gas fee rate (sats/vB, e.g., 5): " STATIC_FEE
-        # Trim whitespace and check if it's a positive integer
-        STATIC_FEE=$(echo "$STATIC_FEE" | tr -d '[:space:]')
-        if [[ "$STATIC_FEE" =~ ^[0-9]+$ ]] && [ "$STATIC_FEE" -gt 0 ]; then
-            break
-        else
-            echo -e "${RED}Gas fee must be a positive integer (e.g., 5). Please try again.${NC}"
-        fi
-    done
+    read -p "Enter gas fee rate (sats/vB, e.g., 5): " STATIC_FEE
+    if ! [[ "$STATIC_FEE" =~ ^[0-9]+$ ]]; then
+        echo -e "${RED}Gas fee must be a positive integer. Exiting.${NC}"
+        exit 1
+    fi
 }
 
 # Function to set up and start miner as a systemd service
@@ -169,7 +150,8 @@ EOF
 }
 
 # Main execution
-display_credits
+echo -e "${GREEN}=== Hemi PoP Miner Setup Script with Systemd ===${NC}"
+echo "Date: April 01, 2025"
 
 # Create working directory
 mkdir -p "$WORK_DIR" || {
