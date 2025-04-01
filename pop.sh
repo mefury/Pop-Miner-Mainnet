@@ -95,7 +95,7 @@ download_and_extract() {
     echo -e "${GREEN}Download and extraction completed.${NC}"
 }
 
-# Function to prompt for user input
+# Function to prompt for user input with improved validation
 get_user_input() {
     echo "Please provide the following details:"
     read -p "Enter your Bitcoin private key: " BTC_PRIVKEY
@@ -104,11 +104,16 @@ get_user_input() {
         exit 1
     fi
 
-    read -p "Enter gas fee rate (sats/vB, e.g., 5): " STATIC_FEE
-    if ! [[ "$STATIC_FEE" =~ ^[0-9]+$ ]]; then
-        echo -e "${RED}Gas fee must be a positive integer. Exiting.${NC}"
-        exit 1
-    fi
+    while true; do
+        read -p "Enter gas fee rate (sats/vB, e.g., 5): " STATIC_FEE
+        # Trim whitespace and check if it's a positive integer
+        STATIC_FEE=$(echo "$STATIC_FEE" | tr -d '[:space:]')
+        if [[ "$STATIC_FEE" =~ ^[0-9]+$ ]] && [ "$STATIC_FEE" -gt 0 ]; then
+            break
+        else
+            echo -e "${RED}Gas fee must be a positive integer (e.g., 5). Please try again.${NC}"
+        fi
+    done
 }
 
 # Function to set up and start miner as a systemd service
